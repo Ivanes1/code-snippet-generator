@@ -19,4 +19,40 @@ document.addEventListener("DOMContentLoaded", function () {
   const testResult = document.getElementById("testResult");
 
   const regenerateCodeBtn = document.getElementById("regenerateCodeBtn");
+
+  function generateCode(prompt) {
+    const payload = {
+      prompt,
+    };
+
+    fetch("http://localhost:8000/generate_code", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const { code, language } = data;
+
+        codeBlock.textContent = code;
+        codeBlock.className = language;
+
+        delete codeBlock.dataset.highlighted;
+        hljs.highlightElement(codeBlock);
+      })
+      .catch((error) => {
+        console.error("Error generating code:", error);
+      });
+  }
+
+  generateCodeBtn.addEventListener("click", () => {
+    if (!codeTextArea.value) {
+      alert("Please enter a prompt.");
+    } else {
+      generateCode(codeTextArea.value);
+      codeTextArea.value = "";
+    }
+  });
 });
