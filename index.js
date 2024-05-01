@@ -218,6 +218,38 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
+  function runTests() {
+    const payload = {
+      code: activeSnippet.code,
+      tests: activeSnippet.tests,
+      language: activeSnippet.language,
+    };
+
+    fetch("http://localhost:8000/run_tests", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const { message } = data;
+
+        activeSnippet.lastTestResult = {
+          code: activeSnippet.code,
+          tests: activeSnippet.tests,
+          result: message,
+          success: message === "All tests passed!",
+        };
+
+        testResult.textContent = message;
+      })
+      .catch((error) => {
+        console.error("Error running tests:", error);
+      });
+  }
+
   createSnippetBtn.addEventListener("click", () => {
     const snippetName = prompt("Enter the name of the new snippet:");
     if (snippetName) {
@@ -262,6 +294,14 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       generateTests(improveTestsInput.value);
       improveTestsInput.value = "";
+    }
+  });
+
+  runTestsBtn.addEventListener("click", () => {
+    if (!activeSnippet.code || !activeSnippet.tests) {
+      alert("Please generate code and tests first.");
+    } else {
+      runTests();
     }
   });
 

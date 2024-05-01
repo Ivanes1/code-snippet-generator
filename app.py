@@ -6,6 +6,7 @@ import json
 import os
 
 from gpt_provider import GPTProvider
+from code_tester import CodeTester
 
 load_dotenv()
 app = FastAPI()
@@ -45,6 +46,12 @@ class CodeRequest(BaseModel):
 class TestsRequest(BaseModel):
     code: str
     snippet_id: str
+
+
+class RunTestsRequest(BaseModel):
+    code: str
+    tests: list[str]
+    language: str
 
 
 @app.get("/snippet/{snippet_id}")
@@ -161,3 +168,13 @@ async def generate_tests(tests_request: TestsRequest):
         json.dump(data, f)
 
     return response
+
+
+@app.post("/run_tests")
+async def test_code(run_tests_request: RunTestsRequest):
+    code_tester = CodeTester(
+        code=run_tests_request.code,
+        tests=run_tests_request.tests,
+        language=run_tests_request.language,
+    )
+    return code_tester.test()
