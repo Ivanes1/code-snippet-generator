@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
 from pydantic import BaseModel
 import json
 import os
@@ -8,7 +7,6 @@ import os
 from gpt_provider import GPTProvider
 from code_tester import CodeTester
 
-load_dotenv()
 app = FastAPI()
 
 app.add_middleware(
