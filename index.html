@@ -15,62 +15,80 @@
     <div class="flex">
       <div class="w-1/4 p-4 bg-gray-200">
         <h2 class="font-bold mb-4">Snippets List</h2>
-        <button class="mb-4 bg-blue-500 text-white px-4 py-2 rounded">
+        <button
+          id="createSnippetBtn"
+          class="mb-4 bg-blue-500 text-white px-4 py-2 rounded"
+        >
           Create New Snippet
         </button>
-        <ul></ul>
+        <ul id="snippetsList"></ul>
       </div>
 
-      <div class="w-1/2 p-4">
+      <div id="snippetGenerator" class="w-1/2 p-4">
         <h1 class="text-xl font-bold mb-4">Code Snippet Generator</h1>
         <textarea
+          id="codeDescription"
           placeholder="Describe your code snippet here..."
           class="w-full p-2 border border-gray-300 rounded mb-4"
           rows="3"
         ></textarea>
-        <button class="w-full bg-green-500 text-white px-4 py-2 rounded mb-4">
+        <button
+          id="generateCodeBtn"
+          class="w-full bg-green-500 text-white px-4 py-2 rounded mb-4"
+        >
           Generate Code
         </button>
 
-        <pre class="mb-2"><code class="python"> 
-    </code></pre>
+        <pre class="mb-2"><code id="codeBlock" class="python"></code></pre>
         <div class="flex justify-between mb-4">
           <input
+            id="improveCodeInput"
             type="text"
             placeholder="Provide feedback for regenerating code..."
             class="flex-grow mr-2 p-2 border border-gray-300 rounded"
           />
-          <button class="bg-blue-500 text-white px-4 py-2 rounded">
+          <button
+            id="improveCodeBtn"
+            class="bg-blue-500 text-white px-4 py-2 rounded"
+          >
             Improve Code
           </button>
         </div>
-        <button class="w-full bg-purple-500 text-white px-4 py-2 rounded mb-4">
+        <button
+          id="generateTestsBtn"
+          class="w-full bg-purple-500 text-white px-4 py-2 rounded mb-4"
+        >
           Generate Test Cases
         </button>
 
         <hr class="mb-4 border-t-2 border-gray-300" />
 
-        <pre class="mb-2"><code class="python"></code></pre>
+        <pre class="mb-2"><code id="testsBlock" class="python"></code></pre>
 
         <div class="flex justify-between mb-4">
           <input
+            id="improveTestsInput"
             type="text"
             placeholder="Provide feedback for regenerating test cases..."
             class="flex-grow mr-2 p-2 border border-gray-300 rounded"
           />
-          <button class="bg-blue-500 text-white px-4 py-2 rounded">
+          <button
+            id="improveTestsBtn"
+            class="bg-blue-500 text-white px-4 py-2 rounded"
+          >
             Improve Tests
           </button>
         </div>
-        <button class="w-full bg-teal-500 text-white px-4 py-2 rounded mb-4">
+        <button
+          id="runTestsBtn"
+          class="w-full bg-teal-500 text-white px-4 py-2 rounded mb-4"
+        >
           Run Test Code
         </button>
-        <div class="bg-green-300 p-4 rounded mb-4">
-          Code Executed Successfully
-        </div>
+        <div id="testResult" class="bg-green-300 p-4 rounded mb-4"></div>
         <button
+          id="regenerateCodeBtn"
           class="w-full bg-gray-500 text-white px-4 py-2 rounded mb-4"
-          disabled
         >
           Regenerate
         </button>
@@ -81,5 +99,6 @@
     <script>
       hljs.highlightAll();
     </script>
+    <script src="index.js"></script>
   </body>
 </html>
