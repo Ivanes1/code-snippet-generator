@@ -33,7 +33,7 @@ SYSTEM_PROMPTS = {
         7. Handle test case generation for multiple programming languages. Use appropriate testing frameworks and syntax based on the language:
             - Python: `assert test_condition, "Test description"`
             - JavaScript: `expect(actual).toBe(expected)`
-            - Java: `assertEquals(expected, actual);`
+            - Java: `if (!(test_condition)) {throw new Exception("Test failed");}`
             - Ruby: `assert_equal(expected, actual)`
             - C++: `assert(test_condition);`
             - Others as specified.

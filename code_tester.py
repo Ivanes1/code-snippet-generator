@@ -86,16 +86,12 @@ class CodeTester:
             os.remove(script_path)
 
     def _test_java(self):
-        # remove comments and add semicolons
-        test_lines = [
-            test.split("//")[0].strip().strip(";") + ";" for test in self.tests
-        ]
         class_code = "\n".join(
             [
-                "public class TestRunner {",
+                "class TestRunner {",
                 "public static void main(String[] args) {",
                 "try {",
-                *test_lines,
+                *self.tests,
                 "} catch (Exception e) {",
                 "System.out.println(e.toString());",
                 "System.exit(1);",
