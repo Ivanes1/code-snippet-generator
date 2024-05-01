@@ -250,6 +250,33 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
+  function regenerateCode() {
+    if (activeSnippet.lastTestResult.success) {
+      alert("All tests passed! No need to regenerate the code.");
+    } else if (
+      activeSnippet.lastTestResult.code !== activeSnippet.code ||
+      activeSnippet.lastTestResult.tests !== activeSnippet.tests
+    ) {
+      alert(
+        "Code or tests have changed since the last test run. Please re-run the tests."
+      );
+    } else {
+      const regenerationPrompt =
+        "The following code:\n" +
+        `\`\`\`\n${activeSnippet.lastTestResult.code}\n\`\`\`\n` +
+        "failed the following tests:\n" +
+        `\`\`\`\n${activeSnippet.lastTestResult.tests.join("\n")}\n\`\`\`\n` +
+        "with the following message:\n" +
+        `\`\`\`\n${activeSnippet.lastTestResult.result}\n\`\`\`\n` +
+        "Please regenerate the code.";
+      generateCode({ prompt: regenerationPrompt, keepContext: false });
+
+      activeSnippet.lastTestResult = null;
+
+      testResult.textContent = "";
+    }
+  }
+
   createSnippetBtn.addEventListener("click", () => {
     const snippetName = prompt("Enter the name of the new snippet:");
     if (snippetName) {
@@ -302,6 +329,14 @@ document.addEventListener("DOMContentLoaded", function () {
       alert("Please generate code and tests first.");
     } else {
       runTests();
+    }
+  });
+
+  regenerateCodeBtn.addEventListener("click", () => {
+    if (!activeSnippet.lastTestResult) {
+      alert("Please run tests first.");
+    } else {
+      regenerateCode();
     }
   });
 
