@@ -62,7 +62,14 @@ class CodeTester:
             os.remove(exe_name)
 
     def _test_ruby(self):
-        script = "\n".join([self.code, "\n"] + self.tests)
+        script = "\n".join(
+            [
+                "require 'test/unit'",
+                "include Test::Unit::Assertions",
+                self.code,
+                *self.tests,
+            ]
+        )
         print(script)
         with tempfile.NamedTemporaryFile(delete=False, suffix=".rb") as temp_rb:
             temp_rb.write(script.encode())
@@ -165,7 +172,7 @@ class CodeTester:
             os.remove(script_path)
 
     def _test_python(self):
-        script = "\n".join([self.code, "\n", *self.tests])
+        script = "\n".join([self.code, *self.tests])
         print(script)
         with tempfile.NamedTemporaryFile(delete=False, suffix=".py") as temp_py:
             temp_py.write(script.encode())
@@ -173,7 +180,7 @@ class CodeTester:
 
         try:
             run_process = subprocess.run(
-                ("python", script_path),
+                ("python3", script_path),
                 capture_output=True,
                 text=True,
             )
