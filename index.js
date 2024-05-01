@@ -20,6 +20,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const regenerateCodeBtn = document.getElementById("regenerateCodeBtn");
 
+  let activeSnippet = {
+    id: null,
+    code: null,
+    tests: [],
+    language: null,
+    lastTestResult: null,
+  };
+
   function loadSnippets() {
     snippetsList.innerHTML = null;
     const snippets = JSON.parse(localStorage.getItem("snippets")) || [];
@@ -66,15 +74,54 @@ document.addEventListener("DOMContentLoaded", function () {
       activeSnippetIndicator.href = "#";
       activeSnippetIndicator.textContent = snippet.name;
 
+      activeSnippet.id === snippet.id
+        ? (() => {
+            activateSnippetBtn.classList.add("hidden");
+            deleteSnippetBtn.classList.add("hidden");
+          })()
+        : activeSnippetIndicator.classList.add("hidden");
+
       li.appendChild(activateSnippetBtn);
       li.appendChild(deleteSnippetBtn);
       li.appendChild(activeSnippetIndicator);
       snippetsList.appendChild(li);
     });
+
+    activeSnippet.id
+      ? snippetGenerator.classList.remove("hidden")
+      : snippetGenerator.classList.add("hidden");
   }
 
   function activateSnippet(id) {
-    // get call to fetch the snippet data from the server
+    fetch(`http://localhost:8000/snippet/${id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        activeSnippet = {
+          id,
+          code: data.codeData.code,
+          tests: data.testsData.tests,
+          language: data.codeData.language,
+          lastTestResult: null,
+        };
+
+        codeBlock.textContent = activeSnippet.code;
+        codeBlock.className = activeSnippet.language;
+
+        testsBlock.textContent = activeSnippet.tests.join("\n");
+        testsBlock.className = activeSnippet.language;
+
+        testResult.textContent = "";
+
+        delete codeBlock.dataset.highlighted;
+        delete testsBlock.dataset.highlighted;
+        hljs.highlightElement(codeBlock);
+        hljs.highlightElement(testsBlock);
+
+        loadSnippets();
+      })
+      .catch((error) => {
+        console.error("Error getting snippet:", error);
+      });
   }
 
   function deleteSnippet(id) {
@@ -91,22 +138,24 @@ document.addEventListener("DOMContentLoaded", function () {
     snippets.push({ id, name });
     localStorage.setItem("snippets", JSON.stringify(snippets));
 
-    codeBlock.textContent = "";
-    testsBlock.textContent = "";
+    activeSnippet = {
+      id,
+      code: null,
+      tests: [],
+      language: null,
+      lastTestResult: null,
+    };
+
+    codeBlock.textContent = activeSnippet.code;
+    testsBlock.textContent = activeSnippet.tests.join("\n");
 
     loadSnippets();
   }
 
-  createSnippetBtn.addEventListener("click", () => {
-    const snippetName = prompt("Enter the name of the new snippet:");
-    if (snippetName) {
-      createSnippet(snippetName);
-    }
-  });
-
   function generateCode(prompt) {
     const payload = {
       prompt,
+      snippet_id: activeSnippet.id,
     };
 
     fetch("http://localhost:8000/generate_code", {
@@ -119,9 +168,14 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((response) => response.json())
       .then((data) => {
         const { code, language } = data;
+        activeSnippet = {
+          ...activeSnippet,
+          code,
+          language,
+        };
 
-        codeBlock.textContent = code;
-        codeBlock.className = language;
+        codeBlock.textContent = activeSnippet.code;
+        codeBlock.className = activeSnippet.language;
 
         delete codeBlock.dataset.highlighted;
         hljs.highlightElement(codeBlock);
@@ -134,6 +188,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function generateTests(code) {
     const payload = {
       code,
+      snippet_id: activeSnippet.id,
     };
 
     fetch("http://localhost:8000/generate_tests", {
@@ -146,8 +201,13 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((response) => response.json())
       .then((data) => {
         const { tests } = data;
+        activeSnippet = {
+          ...activeSnippet,
+          tests,
+        };
 
-        testsBlock.textContent = tests.join("\n");
+        testsBlock.textContent = activeSnippet.tests.join("\n");
+        testsBlock.className = activeSnippet.language;
 
         delete testsBlock.dataset.highlighted;
         hljs.highlightElement(testsBlock);
@@ -156,6 +216,13 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Error generating tests:", error);
       });
   }
+
+  createSnippetBtn.addEventListener("click", () => {
+    const snippetName = prompt("Enter the name of the new snippet:");
+    if (snippetName) {
+      createSnippet(snippetName);
+    }
+  });
 
   generateCodeBtn.addEventListener("click", () => {
     if (!codeTextArea.value) {
@@ -167,10 +234,15 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   generateTestsBtn.addEventListener("click", () => {
-    if (!codeBlock.value) {
+    if (!activeSnippet.code) {
       alert("Please generate code first.");
     } else {
-      generateTests(codeBlock.value);
+      const testsPrompt =
+        "Generate tests for the following code:\n" +
+        `\`\`\`\n${activeSnippet.code}\n\`\`\``;
+      generateTests(testsPrompt);
     }
   });
+
+  loadSnippets();
 });
