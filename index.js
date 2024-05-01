@@ -47,12 +47,46 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
+  function generateTests(code) {
+    const payload = {
+      code,
+    };
+
+    fetch("http://localhost:8000/generate_tests", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const { tests } = data;
+
+        testsBlock.textContent = tests.join("\n");
+
+        delete testsBlock.dataset.highlighted;
+        hljs.highlightElement(testsBlock);
+      })
+      .catch((error) => {
+        console.error("Error generating tests:", error);
+      });
+  }
+
   generateCodeBtn.addEventListener("click", () => {
     if (!codeTextArea.value) {
       alert("Please enter a prompt.");
     } else {
       generateCode(codeTextArea.value);
       codeTextArea.value = "";
+    }
+  });
+
+  generateTestsBtn.addEventListener("click", () => {
+    if (!codeBlock.value) {
+      alert("Please generate code first.");
+    } else {
+      generateTests(codeBlock.value);
     }
   });
 });
