@@ -44,3 +44,12 @@ SYSTEM_PROMPTS = {
         12. Continuously learn from interactions to improve the quality and coverage of the test cases generated.
     """,
 }
+
+
+LANG_ALIASES = {
+    ("python", "py"): "python",
+    ("javascript", "js"): "javascript",
+    ("java",): "java",
+    ("ruby",): "ruby",
+    ("c++", "cpp"): "c++",
+}
