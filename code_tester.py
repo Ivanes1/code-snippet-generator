@@ -31,7 +31,6 @@ class CodeTester:
         script = "\n".join(
             ["#include <assert.h>\n", self.code, "\nint main() {", *test_lines, "}"]
         )
-        print(script)
         with tempfile.NamedTemporaryFile(delete=False, suffix=".exe") as temp_exe:
             exe_name = temp_exe.name
 
@@ -70,7 +69,6 @@ class CodeTester:
                 *self.tests,
             ]
         )
-        print(script)
         with tempfile.NamedTemporaryFile(delete=False, suffix=".rb") as temp_rb:
             temp_rb.write(script.encode())
             script_path = temp_rb.name
@@ -109,7 +107,6 @@ class CodeTester:
                 "}",
             ]
         )
-        print(class_code)
         with tempfile.NamedTemporaryFile(delete=False, suffix=".java") as temp_java:
             temp_java.write(class_code.encode())
             class_path = temp_java.name
@@ -149,7 +146,6 @@ class CodeTester:
         script = "\n".join(
             ["const assert = require('assert');", self.code, *self.tests]
         )
-        print(script)
         with tempfile.NamedTemporaryFile(delete=False, suffix=".js") as temp_js:
             temp_js.write(script.encode())
             script_path = temp_js.name
@@ -173,7 +169,6 @@ class CodeTester:
 
     def _test_python(self):
         script = "\n".join([self.code, *self.tests])
-        print(script)
         with tempfile.NamedTemporaryFile(delete=False, suffix=".py") as temp_py:
             temp_py.write(script.encode())
             script_path = temp_py.name
