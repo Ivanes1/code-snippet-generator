@@ -24,7 +24,10 @@ class CodeTester:
         return self.language_tester[self.language]()
 
     def _test_cpp(self):
-        test_lines = [test + ";" for test in self.tests if not test.endswith(";")]
+        # remove comments and add semicolons
+        test_lines = [
+            test.split("//")[0].strip().strip(";") + ";" for test in self.tests
+        ]
         script = "\n".join(
             ["#include <assert.h>\n", self.code, "\nint main() {", *test_lines, "}"]
         )
@@ -83,12 +86,16 @@ class CodeTester:
             os.remove(script_path)
 
     def _test_java(self):
+        # remove comments and add semicolons
+        test_lines = [
+            test.split("//")[0].strip().strip(";") + ";" for test in self.tests
+        ]
         class_code = "\n".join(
             [
                 "public class TestRunner {",
                 "public static void main(String[] args) {",
                 "try {",
-                *self.tests,
+                *test_lines,
                 "} catch (Exception e) {",
                 "System.out.println(e.toString());",
                 "System.exit(1);",
@@ -131,7 +138,9 @@ class CodeTester:
             return {"error": "Code execution failed", "message": str(e)}
         finally:
             os.remove(class_path)
-            os.remove(class_path.replace(".java", ".class"))
+            bin_path = os.path.join(os.path.dirname(class_path), "TestRunner.class")
+            if os.path.exists(bin_path):
+                os.remove(bin_path)
 
     def _test_javascript(self):
         script = "\n".join([self.code, "\n"] + self.tests)
