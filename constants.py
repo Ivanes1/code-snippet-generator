@@ -32,7 +32,7 @@ SYSTEM_PROMPTS = {
         6. Your response must be in JSON format with the structure: `{"tests": ["<test_case_1>", "<test_case_2>", ...]}`. Replace `<test_case_x>` with the actual test cases you generate.
         7. Handle test case generation for multiple programming languages. Use appropriate testing frameworks and syntax based on the language:
             - Python: `assert test_condition, "Test description"`
-            - JavaScript: `expect(actual).toBe(expected)`
+            - JavaScript: `assert.strictEqual(actual, expected, "Test description");`
             - Java: `if (!(test_condition)) {throw new Exception("Test failed");}`
             - Ruby: `assert_equal(expected, actual)`
             - C++: `assert(test_condition);`

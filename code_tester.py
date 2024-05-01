@@ -139,7 +139,9 @@ class CodeTester:
                 os.remove(bin_path)
 
     def _test_javascript(self):
-        script = "\n".join([self.code, "\n"] + self.tests)
+        script = "\n".join(
+            ["const assert = require('assert');", self.code, *self.tests]
+        )
         print(script)
         with tempfile.NamedTemporaryFile(delete=False, suffix=".js") as temp_js:
             temp_js.write(script.encode())
