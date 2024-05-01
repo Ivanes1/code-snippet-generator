@@ -39,6 +39,7 @@ with open(f"data.json", "r") as f:
 class CodeRequest(BaseModel):
     prompt: str
     snippet_id: str
+    keep_context: bool = False
 
 
 class TestsRequest(BaseModel):
@@ -66,32 +67,66 @@ async def get_snippet(snippet_id: str):
 
 @app.post("/generate_code")
 async def generate_code(code_request: CodeRequest):
-    gpt = code_generators.get(code_request.snippet_id) or GPTProvider(
-        assistant="code_generator",
-    )
-    response = gpt.send_message(
-        prompt=code_request.prompt,
-    )
-    response = (
-        response
-        if "code" in response
-        else {"code": "# Failed to generate the code", "language": "python"}
-    )
+    if code_request.keep_context:
+        # Use the existing context or start a new conversation
+        gpt = code_generators.get(code_request.snippet_id) or GPTProvider(
+            assistant="code_generator",
+        )
+        response = gpt.send_message(
+            prompt=code_request.prompt,
+        )
+        response = (
+            response
+            if "code" in response
+            else {"code": "# Failed to generate the code", "language": "python"}
+        )
 
-    with open(f"data.json", "r") as f:
-        data = json.load(f)
+        # Save the conversation context
+        with open(f"data.json", "r") as f:
+            data = json.load(f)
 
-    if code_request.snippet_id not in data:
-        data[code_request.snippet_id] = {}
-    data[code_request.snippet_id]["code"] = data[code_request.snippet_id].get(
-        "code", []
-    ) + [
-        {"role": "user", "message": code_request.prompt},
-        {"role": "assistant", "message": json.dumps(response)},
-    ]
+        if code_request.snippet_id not in data:
+            data[code_request.snippet_id] = {}
+        data[code_request.snippet_id]["code"] = data[code_request.snippet_id].get(
+            "code", []
+        ) + [
+            {"role": "user", "message": code_request.prompt},
+            {"role": "assistant", "message": json.dumps(response)},
+        ]
 
-    with open(f"data.json", "w") as f:
-        json.dump(data, f)
+        with open(f"data.json", "w") as f:
+            json.dump(data, f)
+    else:
+        # Start a new conversation
+        code_generators[code_request.snippet_id] = GPTProvider(
+            assistant="code_generator",
+        )
+        tests_generators[code_request.snippet_id] = GPTProvider(
+            assistant="tests_generator",
+        )
+        gpt = code_generators[code_request.snippet_id]
+        response = gpt.send_message(
+            prompt=code_request.prompt,
+        )
+        response = (
+            response
+            if "code" in response
+            else {"code": "# Failed to generate the code", "language": "python"}
+        )
+
+        # Save the new conversation context
+        with open(f"data.json", "r") as f:
+            data = json.load(f)
+
+        data[code_request.snippet_id] = {
+            "code": [
+                {"role": "user", "message": code_request.prompt},
+                {"role": "assistant", "message": json.dumps(response)},
+            ],
+        }
+
+        with open(f"data.json", "w") as f:
+            json.dump(data, f)
 
     return response
 

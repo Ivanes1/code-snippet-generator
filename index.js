@@ -152,10 +152,11 @@ document.addEventListener("DOMContentLoaded", function () {
     loadSnippets();
   }
 
-  function generateCode(prompt) {
+  function generateCode({ prompt, keepContext }) {
     const payload = {
       prompt,
       snippet_id: activeSnippet.id,
+      keep_context: keepContext,
     };
 
     fetch("http://localhost:8000/generate_code", {
@@ -228,8 +229,18 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!codeTextArea.value) {
       alert("Please enter a prompt.");
     } else {
-      generateCode(codeTextArea.value);
+      generateCode({ prompt: codeTextArea.value, keepContext: false });
       codeTextArea.value = "";
+    }
+  });
+  improveCodeBtn.addEventListener("click", () => {
+    if (!activeSnippet.code) {
+      alert("Please generate code first.");
+    } else if (!improveCodeInput.value) {
+      alert("Please enter a prompt.");
+    } else {
+      generateCode({ prompt: improveCodeInput.value, keepContext: true });
+      improveCodeInput.value = "";
     }
   });
 
@@ -241,6 +252,16 @@ document.addEventListener("DOMContentLoaded", function () {
         "Generate tests for the following code:\n" +
         `\`\`\`\n${activeSnippet.code}\n\`\`\``;
       generateTests(testsPrompt);
+    }
+  });
+  improveTestsBtn.addEventListener("click", () => {
+    if (!activeSnippet.tests) {
+      alert("Please generate tests first.");
+    } else if (!improveTestsInput.value) {
+      alert("Please enter a prompt.");
+    } else {
+      generateTests(improveTestsInput.value);
+      improveTestsInput.value = "";
     }
   });
 
